@@ -8,20 +8,20 @@ load_dotenv(".env")
 
 # get environment variables
 ## API
-api_host = os.getenv("API_HOST")
-api_port = os.getenv("API_PORT")
+api_host = os.getenv("API_HOST", None)
+api_port = os.getenv("API_PORT", None)
 
 ## MongoDB
-mongodb_user = os.getenv("MONGODB_USER")
-mongodb_pw = os.getenv("MONGODB_PW")
-mongodb_url = os.getenv("MONGODB_URL")
-mongodb_port = os.getenv("MONGODB_PORT")
+mongodb_user = os.getenv("MONGODB_USER", "")
+mongodb_pw = os.getenv("MONGODB_PW", "")
+mongodb_url = os.getenv("MONGODB_URL", "localhost")
+mongodb_port = os.getenv("MONGODB_PORT", "27017")
 
 db_name = "food_inventory"
-article_collection_name = "Lebensmittel"
+grocery_collection_name = "Lebensmittel"
 recipe_collection_name = "Rezepte"
 
-
+counter_collection_name = "ID Counter"
 
 
 

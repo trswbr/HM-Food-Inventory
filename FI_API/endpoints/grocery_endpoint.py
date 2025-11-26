@@ -5,11 +5,11 @@ from fastapi import APIRouter
 
 ## article endpoints ## --------------------------------------
 router = APIRouter(
-    prefix="/articles",
+    prefix="/groceries",
     tags=["Lebensmittel"]
 )
 
 @router.get("/all")
-async def get_all_articles():
+async def get_all_groceries():
     return {"message": "Placeholder"}
 
