@@ -3,7 +3,7 @@
 
 # import code
 from internal.config import counter_collection_name, grocery_collection_name, \
-    recipe_collection_name
+    recipe_collection_name, item_collection_name
 
 
 ## Counter Util ## --------------------------------------
@@ -25,6 +25,10 @@ async def _get_next_id(conn: AsyncMongoClient, collection: str):
 async def get_grocery_id(conn: AsyncMongoClient):
     counter = await _get_next_id(collection=grocery_collection_name, conn=conn)
     return f"LM{counter:06d}"
+
+async def get_item_id(conn: AsyncMongoClient):
+    counter = await _get_next_id(collection=item_collection_name, conn=conn)
+    return counter
 
 async def get_recipe_id(conn: AsyncMongoClient):
     counter = await _get_next_id(collection=recipe_collection_name, conn=conn)

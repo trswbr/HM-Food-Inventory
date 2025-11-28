@@ -39,10 +39,6 @@ class Grocery(GroceryBase):
         description="Eindeutige Kennung des Lebensmittels",
         alias="_id"
     )
-    items: Optional[list[Item]] = Field(default=[],
-        title="Artikel",
-        description="Liste der Artikel, die zu diesem Lebensmittel gehören"
-    )
 
 
 class GetGrocery(Grocery):

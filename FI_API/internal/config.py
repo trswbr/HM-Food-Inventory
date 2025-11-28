@@ -19,6 +19,7 @@ mongodb_port = os.getenv("MONGODB_PORT", "27017")
 
 db_name = "food_inventory"
 grocery_collection_name = "Lebensmittel"
+item_collection_name = "Artikel"
 recipe_collection_name = "Rezepte"
 
 counter_collection_name = "ID Counter"
