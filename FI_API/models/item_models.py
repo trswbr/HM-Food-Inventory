@@ -3,7 +3,8 @@ from datetime import datetime, timedelta
 from pydantic import Field, Optional
 
 # import code
-from models.custom_models import CustomBase, Locations, ItemStatus
+from models.custom_models import CustomBase, Locations, ItemStatus, ResponseListBase
+from models.grocery_models import GroceryBase
 
 
 ## Item Models ## ----------------------------------------------------------
@@ -47,6 +48,9 @@ class Item(ItemBase):
 class GetItem(Item):
     pass
 
+class GetItemGrocery(Item, GroceryBase):
+    pass
+
 class CreateItem(ItemBase):
     best_before_date: Optional[datetime] = Field(default=datetime.now()+timedelta(days=10),
         title="Mindesthaltbarkeitsdatum",
@@ -62,3 +66,10 @@ class UpdateItem(ItemBase):
 
 class DeleteItem(Item):
     pass
+
+
+class ItemList(ResponseListBase):
+    items: list[GetItemGrocery] = Field(
+        title="Artikel Liste",
+        description="Liste der Artikel"
+    )
