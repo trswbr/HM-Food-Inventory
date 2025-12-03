@@ -36,3 +36,8 @@ def get_database():
 def close_database():
     hmdb_client.close()
     logger.info("Disconnected from MongoDB.")
+
+# set database for testing purposes
+def set_database(client: AsyncMongoClient):
+    global hmdb_client
+    hmdb_client = client

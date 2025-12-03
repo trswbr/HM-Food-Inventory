@@ -38,6 +38,12 @@ app.add_middleware(
 
 app.include_router(api_router) # alt prefix ergänzen für verschiedene versionen
 
+def get_app():
+    """
+    Import of FastAPI app for testing.
+    bash for test start: pytest -q
+    """
+    return app
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host=api_host, port=int(api_port), reload=True)
