@@ -1,9 +1,9 @@
 # import packages
-from pydantic import Field, Optional
+from typing import Optional
+from pydantic import Field
 
 # import code
-from models.custom_models import CustomBase, Category, UnitType
-from models.item_models import Item
+from models.custom_models import CustomBase, Category, ResponseListBase, UnitType
 
 
 ## Grocery Models ## ----------------------------------------------------------------
@@ -28,7 +28,7 @@ class GroceryBase(CustomBase):
         title="Maßeinheit",
         description="Einheit der Mengenangabe"
     )
-    receipt_names: Optional[dict[str, str]] = Field(
+    receipt_names: Optional[dict[str, list[str]]] = Field(
         title="Kassenzettelbezeichnung",
         description="Bezeichnungen, die auf dem Kassenzettel für dieses Lebensmittel erscheinen"
     )
@@ -44,8 +44,22 @@ class Grocery(GroceryBase):
 class GetGrocery(Grocery):
     pass
 
+class GetGroceryItems(GetGrocery):
+    items: list = Field(
+        title="Artikel Liste",
+        description="Liste der zugehörigen Artikel"
+    )
+
 class CreateGrocery(GroceryBase):
     pass
 
 class UpdateGrocery(GroceryBase):
     pass
+
+
+class GroceryList(ResponseListBase):
+    data: list[Grocery] = Field(
+        title="Lebensmittel Liste",
+        description="Liste der Lebensmittel"
+    )
+

@@ -23,12 +23,12 @@ async def connect_database():
         logger.info("Connected to MongoDB successfully.")
     except ConnectionFailure:
         logger.error(f"Failed to connect to MongoDB")
-        raise HTTPException(status_code=500, detail="Database connection error.")
+        raise HTTPException(status_code=500, detail="Fehler beim Verbindungsaufbau mit der Datenbank.")
 
 # get database
 def get_database():
     if not hmdb_client:
-        raise HTTPException(status_code=500, detail="Database not connected.")
+        raise HTTPException(status_code=500, detail="Fehler beim Verbindungsaufbau mit der Datenbank.")
     fidb = hmdb_client[db_name]
     return fidb
 

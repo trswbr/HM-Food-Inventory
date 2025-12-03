@@ -1,9 +1,10 @@
 # import packages
 from datetime import datetime, timedelta
-from pydantic import Field, Optional
+from pydantic import Field
+from typing import Optional
 
 # import code
-from models.custom_models import CustomBase, Locations, ItemStatus, ResponseListBase
+from models.custom_models import CustomBase, Locations, ItemStatus
 from models.grocery_models import GroceryBase
 
 
@@ -60,6 +61,10 @@ class CreateItem(ItemBase):
         title="Kaufdatum",
         description="Datum, an dem das Lebensmittel gekauft wurde"
     )
+    price: Optional[float] = Field(
+        title="Preis",
+        description="Preis des Lebensmittels in Euro"
+    )
 
 class UpdateItem(ItemBase):
     pass
@@ -67,9 +72,3 @@ class UpdateItem(ItemBase):
 class DeleteItem(Item):
     pass
 
-
-class ItemList(ResponseListBase):
-    items: list[GetItemGrocery] = Field(
-        title="Artikel Liste",
-        description="Liste der Artikel"
-    )

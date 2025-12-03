@@ -1,19 +1,23 @@
 # import packages
-from pymongo import AsyncMongoClient
+from fastapi import HTTPException
+from pymongo import AsyncMongoClient, ReturnDocument
 
 # import code
-from internal.config import db_name, grocery_collection_name
+from internal.config import db_name, grocery_collection_name, item_collection_name
+from internal.utils.counter import get_grocery_id
 
 # import models
-from models.grocery_models import Grocery
+from models.grocery_models import GetGrocery, GetGroceryItems, GroceryList, CreateGrocery, Grocery, UpdateGrocery
 
 
 ## Grocery Operations ## ------------------------------------------
 
 async def crud_get_all_groceries(
         conn: AsyncMongoClient,
+        skip: int,
+        limit: int,
         filter: dict
-) -> list[Grocery]:
+) -> GroceryList:
     """
     Retrieve all groceries from the database based on the provided filter.
     
@@ -28,5 +32,72 @@ async def crud_get_all_groceries(
     for grocery in await response_grocery.to_list(length=None):
         grocery_list.append(Grocery(**grocery))
     
-    return grocery_list
+    return GroceryList(total_count=len(grocery_list), skip=skip, limit=limit, data=grocery_list)
+
+
+async def crud_get_grocery(
+        conn: AsyncMongoClient,
+        grocery_id: str
+) -> GetGrocery | None:
+    """
+    Retrieve a single grocery from the database by its ID.
+
+    :param conn: AsyncMongoClient - Database connection
+    :param grocery_id: str - Unique identifier of the grocery
+
+    :return: GetGrocery | None - Grocery object if found, else None
+    """
+
+    response_grocery = await conn[db_name][grocery_collection_name].find_one(
+        filter={"_id": grocery_id}
+    )
+    
+    if response_grocery:
+        return Grocery(**response_grocery)
+    return None
+
+async def crud_get_grocery_w_items(
+        conn: AsyncMongoClient,
+        grocery_id: str
+):
+    grocery = await crud_get_grocery(conn=conn, grocery_id=grocery_id)
+    if not grocery:
+        raise HTTPException(status_code=404, detail="Lebensmittel wurde nicht gefunden.")
+    
+    response_items = conn[db_name][item_collection_name].find({"grocery_id": grocery_id}).sort("best_before_date", 1)
+    item_list = await response_items.to_list()
+
+    return GetGroceryItems(**grocery.model_dump(), items=item_list)
+    
+
+async def crud_create_grocery(
+        conn: AsyncMongoClient,
+        grocery_data: CreateGrocery
+) -> str:
+    grocery_id = await get_grocery_id(conn=conn)
+
+    response = await conn[db_name][grocery_collection_name].insert_one(Grocery(
+        _id=grocery_id,
+        **grocery_data.model_dump()
+    ).model_dump(by_alias=True))
+
+    return grocery_id
+
+
+async def crud_update_grocery(
+        conn: AsyncMongoClient,
+        grocery_data: UpdateGrocery,
+        grocery_id: str
+) -> GetGrocery:
+    
+    response = await conn[db_name][grocery_collection_name].find_one_and_update(
+        filter={"_id": grocery_id},
+        update={"$set": grocery_data.model_dump()},
+        return_document=ReturnDocument.AFTER
+    )
+
+    if not response:
+        raise HTTPException(status_code=404, detail="Lebensmittel wurde nicht gefunden.")
+    return GetGrocery(**response)
+
 

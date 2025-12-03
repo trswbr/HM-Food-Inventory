@@ -1,16 +1,18 @@
 # import packages
-from pymongo import AsyncMongoClient
+from fastapi import HTTPException
+from pymongo import AsyncMongoClient, ReturnDocument
 
 # import code
 from internal.config import db_name, item_collection_name
-from crud.grocery_operations import crud_get_all_groceries
+from internal.utils.counter import get_item_id
+from internal.utils.utils import get_data_by_id
 
 # import models
-from models.item_models import GetItemGrocery, ItemList
+from models.item_models import GetItem, CreateItem, Item, GetItemGrocery, UpdateItem
+from models.custom_models import ItemStatus
 
 
 ## Item Operations ## ------------------------------------------------
-
 async def crud_get_all_items(
         conn: AsyncMongoClient,
         skip: int,
@@ -19,7 +21,7 @@ async def crud_get_all_items(
         f_item_status: list = [],
         f_grocery_id: list = [],
         sort: list = ["grocery_id", 1]
-) -> ItemList:
+) -> list[GetItem]:
     """
     Retrieve all items from the database with optional filtering and pagination.
 
@@ -46,21 +48,124 @@ async def crud_get_all_items(
 
     # Find items
     cursor_item = conn[db_name][item_collection_name].find(filter=filter_query, skip=skip, limit=limit).sort(*sort)
-    response_items = await cursor_item.to_list()
-
-    # Find corresponding groceries
-    grocery_ids = [item["grocery_id"] for item in response_items]
-    grocery_ids = list(set(grocery_ids))
-    response_groceries = await crud_get_all_groceries(conn=conn, filter={"_id": {"$in": grocery_ids}})
-
-    # Combine item and grocery data
-    full_item_list = []
-    for item in response_items:
-        for grocery in response_groceries:
-            if item["grocery_id"] == grocery.id:
-                full_item_list.append(GetItemGrocery(**item, **grocery.model_dump(exclude={"id"})))
-
-    return ItemList(count=len(full_item_list), limit=limit, skip=skip, items=full_item_list)
-
-
     
+    all_items = []
+    async for item in cursor_item:
+        all_items.append(GetItem(**item))
+
+    return all_items
+
+
+async def crud_get_item(
+        conn: AsyncMongoClient,
+        item_id: int
+) -> GetItem | None:
+    """
+    Retrieve a single item from the database by its ID.
+
+    :param conn: AsyncMongoClient - Database connection
+    :param item_id: int - ID of the item to retrieve
+
+    :return: Item - The requested item
+    """
+    response_item = await conn[db_name][item_collection_name].find_one({"_id": item_id})
+    
+    if response_item:
+        return GetItem(**response_item)    
+    return None
+
+
+async def crud_get_item_w_grocery(
+        conn: AsyncMongoClient,
+        item_id: int
+) -> GetItemGrocery:
+    """
+    Retrieve a single item along with its grocery details from the database by its ID.
+
+    :param conn: AsyncMongoClient - Database connection
+    :param item_id: int - ID of the item to retrieve
+
+    :return: GetItemGrocery - The requested item with grocery details
+    """
+    item = await crud_get_item(conn, item_id)
+    if not item:
+        raise HTTPException(status_code=404, detail="Artikel wurde nicht gefunden.")
+
+
+    grocery_data = await get_data_by_id(conn=conn, collection_key="grocery", filter_id=item.grocery_id)
+    return GetItemGrocery(**item.model_dump(by_alias=True), **grocery_data.model_dump(exclude={"id"}))
+
+
+async def crud_create_item(
+        conn: AsyncMongoClient,
+        item_data: CreateItem,
+        grocery_id: str
+) -> int:
+    item_id = await get_item_id(conn)
+    
+    response = await conn[db_name][item_collection_name].insert_one(Item(
+        _id=item_id,
+        grocery_id=grocery_id,
+        **item_data.model_dump()
+    ).model_dump(by_alias=True))
+
+    return item_id
+
+
+async def crud_update_item(
+        conn: AsyncMongoClient,
+        item_data: UpdateItem,
+        item_id: int
+) -> GetItem:
+    
+    response = await conn[db_name][item_collection_name].find_one_and_update(
+        filter={"_id": item_id},
+        update={"$set": item_data.model_dump()},
+        return_document=ReturnDocument.AFTER
+    )
+
+    if not response:
+        raise HTTPException(status_code=404, detail="Artikel wurde nicht gefunden.")
+    return GetItem(**response)
+
+
+async def _update_status_item(
+        conn: AsyncMongoClient,
+        item_id: int,
+        new_status: ItemStatus
+):
+    response = await conn[db_name][item_collection_name].update_one(
+        filter={"_id": item_id},
+        update={"$set": {"item_status": new_status}}
+    )
+
+    if response.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Artikel wurde nicht gefunden.")
+
+async def crud_item_status_opened(
+        conn: AsyncMongoClient,
+        item_id: int
+):
+    await _update_status_item(conn=conn, item_id=item_id, new_status=ItemStatus.opened)
+
+async def crud_item_status_consumed(
+        conn: AsyncMongoClient,
+        item_id: int
+):
+    await _update_status_item(conn=conn, item_id=item_id, new_status=ItemStatus.consumed)
+
+async def crud_item_status_expired(
+        conn: AsyncMongoClient,
+        item_id: int
+):
+    await _update_status_item(conn=conn, item_id=item_id, new_status=ItemStatus.expired)
+
+async def crud_item_status_disposed(
+        conn: AsyncMongoClient,
+        item_id: int
+):
+    await _update_status_item(conn=conn, item_id=item_id, new_status=ItemStatus.disposed)
+
+
+# TODO: Delete items - under 2 conditions: status=consumed/expired/disposed && report is done
+## report logic not implemented yet ##

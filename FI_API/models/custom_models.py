@@ -12,7 +12,7 @@ class CustomBase(BaseModel):
 
 
 class ResponseListBase(CustomBase):
-    count: int = Field()
+    total_count: int = Field()
     limit: int = Field()
     skip: int = Field()
 
@@ -73,6 +73,7 @@ class Category(str, Enum):
     fish = "Fisch & Meeresfrüchte"
     eggs = "Eier"
     snacks = "Snacks & Süßigkeiten"
+    icecream = "Eis"
     condiments = "Gewürze & Soßen"
     frozen = "Tiefkühlprodukte"
     convenience = "Fertiggerichte"
@@ -84,7 +85,7 @@ class ItemStatus(str, Enum):
     opened = "angebrochen"
     consumed = "verbraucht"
     expired = "abgelaufen"
-    discarded = "entsorgt"
+    disposed = "entsorgt"
 
 class UnitType(str, Enum):
     grams = "g"
