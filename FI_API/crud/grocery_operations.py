@@ -10,6 +10,7 @@ from internal.utils.counter import get_grocery_id
 from models.grocery_models import GetGrocery, GetGroceryItems, GroceryList, CreateGrocery, Grocery, UpdateGrocery
 
 
+
 ## Grocery Operations ## ------------------------------------------
 
 async def crud_get_all_groceries(
@@ -59,7 +60,15 @@ async def crud_get_grocery(
 async def crud_get_grocery_w_items(
         conn: AsyncMongoClient,
         grocery_id: str
-):
+) -> GetGroceryItems:
+    """
+    Retrieve a single grocery with related items.
+
+    :param conn: AsyncMongoClient - Database connection
+    :param grocery_id: str - Unique identifier of the grocery
+
+    :return: GetGroceryItems - The requested grocery with related items
+    """
     grocery = await crud_get_grocery(conn=conn, grocery_id=grocery_id)
     if not grocery:
         raise HTTPException(status_code=404, detail="Lebensmittel wurde nicht gefunden.")
@@ -74,6 +83,14 @@ async def crud_create_grocery(
         conn: AsyncMongoClient,
         grocery_data: CreateGrocery
 ) -> str:
+    """
+    Create a single grocery.
+
+    :param conn: AsyncMongoClient - Database connection
+    :param grocery_data: CreateGrocery - data of the grocery to be saved
+
+    :return: str - ID of the grocery that was created
+    """
     grocery_id = await get_grocery_id(conn=conn)
 
     response = await conn[db_name][grocery_collection_name].insert_one(Grocery(
@@ -89,7 +106,13 @@ async def crud_update_grocery(
         grocery_data: UpdateGrocery,
         grocery_id: str
 ) -> GetGrocery:
-    
+    """
+    Updates a single grocery.
+
+    :param conn: AsyncMongoClient - Database connection
+    :param grocery_data: UpdateGrocery - data of the grocery to be updated
+    :param grocery_id: str - ID of the grocery that gets updated
+    """
     response = await conn[db_name][grocery_collection_name].find_one_and_update(
         filter={"_id": grocery_id},
         update={"$set": grocery_data.model_dump()},

@@ -12,6 +12,7 @@ from models.item_models import GetItem, CreateItem, Item, GetItemGrocery, Update
 from models.custom_models import ItemStatus
 
 
+
 ## Item Operations ## ------------------------------------------------
 async def crud_get_all_items(
         conn: AsyncMongoClient,
@@ -33,7 +34,7 @@ async def crud_get_all_items(
     :param f_grocery_id: list - Filter by grocery IDs
     :param sort: list - Sorting criteria and order
 
-    :return: ItemList - List of items with grocery details
+    :return: list - List of items
     """
     # Prepare filter query
     filter_query = {}
@@ -66,7 +67,7 @@ async def crud_get_item(
     :param conn: AsyncMongoClient - Database connection
     :param item_id: int - ID of the item to retrieve
 
-    :return: Item - The requested item
+    :return: GetItem - The requested item if found
     """
     response_item = await conn[db_name][item_collection_name].find_one({"_id": item_id})
     
@@ -101,6 +102,15 @@ async def crud_create_item(
         item_data: CreateItem,
         grocery_id: str
 ) -> int:
+    """
+    Create a single item of a grocery.
+
+    :param conn: AsyncMongoClient - Database connection
+    :param item_data: CreateItem - data of the item to be saved
+    :param grocery_id: str - ID of the grocery the item is related to
+
+    :return: int - ID of the item that was created
+    """
     item_id = await get_item_id(conn)
     
     response = await conn[db_name][item_collection_name].insert_one(Item(
@@ -117,7 +127,15 @@ async def crud_update_item(
         item_data: UpdateItem,
         item_id: int
 ) -> GetItem:
-    
+    """
+    Updates a single item of grocery.
+
+    :param conn: AsyncMongoClient - Database connection
+    :param item_data: UpdateItem - data of the item to be updated
+    :param item_id: int - ID of the item that gets updated
+
+    :return: GetItem - newly updated item
+    """
     response = await conn[db_name][item_collection_name].find_one_and_update(
         filter={"_id": item_id},
         update={"$set": item_data.model_dump()},
@@ -134,6 +152,13 @@ async def _update_status_item(
         item_id: int,
         new_status: ItemStatus
 ):
+    """
+    Updates the state of an item.
+
+    :param conn: AsyncMongoClient - Database connection
+    :param item_id: int - ID of the item to be updated
+    :param new_status: ItemStatus - new state of item
+    """
     response = await conn[db_name][item_collection_name].update_one(
         filter={"_id": item_id},
         update={"$set": {"item_status": new_status}}
@@ -146,24 +171,36 @@ async def crud_item_status_opened(
         conn: AsyncMongoClient,
         item_id: int
 ):
+    """
+    Updates item status to 'opened'.
+    """
     await _update_status_item(conn=conn, item_id=item_id, new_status=ItemStatus.opened)
 
 async def crud_item_status_consumed(
         conn: AsyncMongoClient,
         item_id: int
 ):
+    """
+    Updates item status to 'consumed'.
+    """
     await _update_status_item(conn=conn, item_id=item_id, new_status=ItemStatus.consumed)
 
 async def crud_item_status_expired(
         conn: AsyncMongoClient,
         item_id: int
 ):
+    """
+    Updates item status to 'expired'.
+    """
     await _update_status_item(conn=conn, item_id=item_id, new_status=ItemStatus.expired)
 
 async def crud_item_status_disposed(
         conn: AsyncMongoClient,
         item_id: int
 ):
+    """
+    Updates item status to 'disposed'.
+    """
     await _update_status_item(conn=conn, item_id=item_id, new_status=ItemStatus.disposed)
 
 
