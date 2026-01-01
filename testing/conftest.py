@@ -47,4 +47,4 @@ async def test_client(mongo_container):
     await test_client.close()
 
 
-## start: python -m pytest
+## start: & "C:/Users/teres/Documents/Code/HomeManager/Food Inventory/HM-Food-Inventory/.venv/Scripts/python.exe" -m pytest testing/ -v --tb=short

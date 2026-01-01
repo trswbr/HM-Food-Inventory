@@ -5,7 +5,7 @@ from pymongo import AsyncMongoClient
 
 # import code
 from FI_API.internal.hmdb import get_database
-from FI_API.crud.grocery_operations import crud_get_all_groceries, crud_get_grocery_w_items, \
+from FI_API.crud.grocery_operations import crud_delete_all_groceries, crud_get_all_groceries, crud_get_grocery_w_items, \
     crud_create_grocery, crud_update_grocery
 
 # import models
@@ -50,4 +50,12 @@ async def update_grocery(
     db: AsyncMongoClient = Depends(get_database)
 ) -> GetGrocery:
     return await crud_update_grocery(conn=db, grocery_data=grocery_data, grocery_id=grocery_id)
+
+@router.delete("/reset")
+async def reset_for_tests(
+    db: AsyncMongoClient = Depends(get_database)
+):
+    """ Endpoint to reset the groceries collection only for testing purposes. """
+    await crud_delete_all_groceries(conn=db)
+    return {"message": "Grocery collection reset successful."}
 

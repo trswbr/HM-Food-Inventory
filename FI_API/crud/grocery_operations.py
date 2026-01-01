@@ -27,7 +27,7 @@ async def crud_get_all_groceries(
 
     :return: list[Grocery] - List of groceries matching the filter
     """
-    response_grocery = conn[grocery_collection_name].find(filter=filter)
+    response_grocery = conn[grocery_collection_name].find(filter=filter, limit=limit, skip=skip).sort("_id", 1)
     
     grocery_list = []
     for grocery in await response_grocery.to_list(length=None):
@@ -123,4 +123,12 @@ async def crud_update_grocery(
         raise HTTPException(status_code=404, detail="Lebensmittel wurde nicht gefunden.")
     return GetGrocery(**response)
 
+async def crud_delete_all_groceries(
+        conn: AsyncMongoClient
+):
+    """
+    Deletes all groceries from the database. 
 
+    :param conn: AsyncMongoClient - Database connection
+    """
+    await conn[grocery_collection_name].delete_many({})
