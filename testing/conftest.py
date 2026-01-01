@@ -1,12 +1,14 @@
 # import packages
 from fastapi import FastAPI
 import httpx
+from httpx import ASGITransport
 from pymongo import AsyncMongoClient
 import pytest
-from testcontainers.monbodb import MongoDbContainer
+from testcontainers.mongodb import MongoDbContainer
 
 # import code
 from FI_API.main import get_app
+from FI_API.internal.config import api_host
 from FI_API.internal.hmdb import get_database, set_database
 
 
@@ -21,10 +23,10 @@ def event_loop():
 
 @pytest.fixture(scope="session")
 def mongo_container():
-    with MongoDbContainer("mongo:7.0") as mongo:
+    with MongoDbContainer("mongo:8.2") as mongo:
         yield mongo
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 async def test_client(mongo_container):
     # Test-Mongo starten
     mongo_url = mongo_container.get_connection_url()
@@ -38,9 +40,11 @@ async def test_client(mongo_container):
     # FastAPI app
     app: FastAPI = get_app()
 
-    async with httpx.AsyncClient(app=app, base_url="http://test") as ac:
+    async with httpx.AsyncClient(transport=ASGITransport(app=app), base_url=f"http://{api_host}") as ac:
         yield ac
     
     # End
     await test_client.close()
 
+
+## start: python -m pytest

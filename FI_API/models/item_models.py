@@ -4,8 +4,8 @@ from pydantic import Field
 from typing import Optional
 
 # import code
-from models.custom_models import CustomBase, Locations, ItemStatus
-from models.grocery_models import GroceryBase
+from FI_API.models.custom_models import CustomBase, Locations, ItemStatus
+from FI_API.models.grocery_models import GroceryBase
 
 
 ## Item Models ## ----------------------------------------------------------
@@ -16,7 +16,7 @@ class ItemBase(CustomBase):
     item_status: ItemStatus = Field(
         title="Status des Lebensmittels"
     )
-    note: Optional[str] = Field(
+    note: Optional[str] = Field(default=None,
         title="Anmerkung",
         description="Beliebige Anmerkungen zum Artikel"
     )
@@ -39,7 +39,7 @@ class Item(ItemBase):
         title="Kaufdatum",
         description="Datum, an dem das Lebensmittel gekauft wurde"
     )
-    price: Optional[float] = Field(
+    price: Optional[float] = Field(default=0.0,
         title="Preis",
         description="Preis des Lebensmittels in Euro"
     )
@@ -61,7 +61,7 @@ class CreateItem(ItemBase):
         title="Kaufdatum",
         description="Datum, an dem das Lebensmittel gekauft wurde"
     )
-    price: Optional[float] = Field(
+    price: Optional[float] = Field(default=0.0,
         title="Preis",
         description="Preis des Lebensmittels in Euro"
     )

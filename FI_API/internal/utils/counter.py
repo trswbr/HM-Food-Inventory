@@ -2,7 +2,7 @@
 
 
 # import code
-from internal.config import counter_collection_name, grocery_collection_name, \
+from FI_API.internal.config import counter_collection_name, grocery_collection_name, \
     recipe_collection_name, item_collection_name
 
 

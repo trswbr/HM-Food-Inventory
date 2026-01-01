@@ -6,9 +6,9 @@ import uvicorn
 
 
 # import code
-from internal.config import api_host, api_port
-from internal.hmdb import connect_database, close_database
-from endpoints.api import api_router
+from FI_API.internal.config import api_host, api_port
+from FI_API.internal.hmdb import connect_database, close_database
+from FI_API.endpoints.api import api_router
 
 
 ## main app ## -------------------------------------
@@ -46,4 +46,6 @@ def get_app():
     return app
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host=api_host, port=int(api_port), reload=True)
+    uvicorn.run("FI_API.main:app", host=api_host, port=int(api_port), reload=True)
+
+## start: python -m FI_API.main

@@ -3,7 +3,7 @@ from typing import Optional
 from pydantic import Field
 
 # import code
-from models.custom_models import CustomBase, Category, ResponseListBase, UnitType
+from FI_API.models.custom_models import CustomBase, Category, ResponseListBase, UnitType
 
 
 ## Grocery Models ## ----------------------------------------------------------------
@@ -20,15 +20,15 @@ class GroceryBase(CustomBase):
         title="Kategorie",
         description="Kategorie des Lebensmittels"
     )
-    measurement: Optional[float] = Field(
+    measurement: Optional[float] = Field(default=None,
         title="Mengenangabe",
         desccription="Angabe der Menge pro Stück"
     )
-    unit: Optional[UnitType] = Field(
+    unit: Optional[UnitType] = Field(default=None,
         title="Maßeinheit",
         description="Einheit der Mengenangabe"
     )
-    receipt_names: Optional[dict[str, list[str]]] = Field(
+    receipt_names: Optional[dict[str, list[str]]] = Field(default={},
         title="Kassenzettelbezeichnung",
         description="Bezeichnungen, die auf dem Kassenzettel für dieses Lebensmittel erscheinen"
     )
@@ -58,7 +58,7 @@ class UpdateGrocery(GroceryBase):
 
 
 class GroceryList(ResponseListBase):
-    data: list[Grocery] = Field(
+    data: list[Grocery] = Field(default=[],
         title="Lebensmittel Liste",
         description="Liste der Lebensmittel"
     )

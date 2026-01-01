@@ -5,7 +5,7 @@ from pymongo import AsyncMongoClient
 from pymongo.errors import ConnectionFailure
 
 # import code
-from internal.config import mongodb_port, mongodb_url, mongodb_pw, mongodb_user, db_name
+from FI_API.internal.config import mongodb_port, mongodb_url, mongodb_pw, mongodb_user, db_name
 
 
 ## Database Operations ## -------------------------------------

@@ -3,13 +3,13 @@ from fastapi import HTTPException
 from pymongo import AsyncMongoClient, ReturnDocument
 
 # import code
-from internal.config import item_collection_name
-from internal.utils.counter import get_item_id
-from internal.utils.utils import get_data_by_id
+from FI_API.internal.config import item_collection_name
+from FI_API.internal.utils.counter import get_item_id
+from FI_API.internal.utils.utils import get_data_by_id
 
 # import models
-from models.item_models import GetItem, CreateItem, Item, GetItemGrocery, UpdateItem
-from models.custom_models import ItemStatus
+from FI_API.models.item_models import GetItem, CreateItem, Item, GetItemGrocery, UpdateItem
+from FI_API.models.custom_models import ItemStatus
 
 
 

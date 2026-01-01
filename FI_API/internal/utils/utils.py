@@ -4,11 +4,11 @@ from pymongo import AsyncMongoClient
 from typing import Union
 
 # import code
-from internal.config import db_name, grocery_collection_name, item_collection_name
+from FI_API.internal.config import db_name, grocery_collection_name, item_collection_name
 
 # import models
-from models.grocery_models import GetGrocery
-from models.item_models import GetItem
+from FI_API.models.grocery_models import GetGrocery
+from FI_API.models.item_models import GetItem
 
 
 ## Utils ## ----------------------------------------------------

@@ -4,12 +4,12 @@ from fastapi.params import Query
 from pymongo import AsyncMongoClient
 
 # import code
-from internal.hmdb import get_database
-from crud.grocery_operations import crud_get_all_groceries, crud_get_grocery_w_items, \
+from FI_API.internal.hmdb import get_database
+from FI_API.crud.grocery_operations import crud_get_all_groceries, crud_get_grocery_w_items, \
     crud_create_grocery, crud_update_grocery
 
 # import models
-from models.grocery_models import GroceryList, GetGroceryItems, CreateGrocery, UpdateGrocery, \
+from FI_API.models.grocery_models import GroceryList, GetGroceryItems, CreateGrocery, UpdateGrocery, \
     GetGrocery
 
 

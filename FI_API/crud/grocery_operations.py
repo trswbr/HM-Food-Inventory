@@ -3,11 +3,11 @@ from fastapi import HTTPException
 from pymongo import AsyncMongoClient, ReturnDocument
 
 # import code
-from internal.config import grocery_collection_name, item_collection_name
-from internal.utils.counter import get_grocery_id
+from FI_API.internal.config import grocery_collection_name, item_collection_name
+from FI_API.internal.utils.counter import get_grocery_id
 
 # import models
-from models.grocery_models import GetGrocery, GetGroceryItems, GroceryList, CreateGrocery, Grocery, UpdateGrocery
+from FI_API.models.grocery_models import GetGrocery, GetGroceryItems, GroceryList, CreateGrocery, Grocery, UpdateGrocery
 
 
 
